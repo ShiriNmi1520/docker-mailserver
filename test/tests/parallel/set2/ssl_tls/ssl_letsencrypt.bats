@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/tls"
 
-TEST_NAME_PREFIX="SSL Let'sEncrypt:"
+TEST_NAME_PREFIX="SSL (Let'sEncrypt):"
 CONTAINER1_NAME='dms-test-ssl_letsencrypt-1'
 CONTAINER2_NAME='dms-test-ssl_letsencrypt-2'
 CONTAINER3_NAME='dms-test-ssl_letsencrypt-3'
@@ -78,13 +78,6 @@ function teardown() {
 # While not using a FQDN is valid for that field,
 # it does mean there is no test coverage against the `acme.json` field `main`.
 @test "${TEST_NAME_PREFIX} Traefik 'acme.json' (*.example.test)" {
-  export CONTAINER_NAME=${CONTAINER3_NAME}
-  initial_setup
-
-  # Override the `initial_setup()` default Root CA cert (used for verifying the chain of trust via `openssl`):
-  # shellcheck disable=SC2034
-  local TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/rsa/ca-cert.rsa.pem"
-
   # This test group switches to certs that are signed with an RSA Root CA key instead.
   # All of these certs support both FQDNs (`mail.example.test` and `example.test`),
   # Except for the wildcard cert (`*.example.test`), that was created with `example.test` intentionally excluded from SAN.
@@ -92,6 +85,10 @@ function teardown() {
   local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
   function _prepare() {
+    # Override the `initial_setup()` default Root CA cert (used for verifying the chain of trust via `openssl`):
+    # shellcheck disable=SC2034
+    export TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/rsa/ca-cert.rsa.pem"
+
     # Default `acme.json` for _acme_ecdsa test:
     cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
 
@@ -161,6 +158,8 @@ function teardown() {
     _should_not_support_fqdn_in_cert 'example.test'
   }
 
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+  initial_setup
   _prepare
 
   # Unleash the `acme.json` tests!

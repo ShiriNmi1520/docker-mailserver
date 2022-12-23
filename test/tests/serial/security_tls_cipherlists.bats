@@ -1,4 +1,8 @@
 #!/usr/bin/env bats
+
+# TODO move to `test/tests/parallel/set2/ssl_tls/` AND
+# TODO adjust it to the new test helpers + parallel execution
+
 load "${REPOSITORY_ROOT}/test/test_helper/common"
 # Globals ${BATS_TMPDIR} and ${NAME}
 # `${NAME}` defaults to `mailserver-testing:ci`
