@@ -26,9 +26,9 @@ To run the test suite, you will need to
 
 ??? tip "Setting the Degree of Parallelization for Tests"
 
-    If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the `make clean all` command with `PARALLEL_JOBS=X` (i.e. `PARALLEL_JOBS=X make clean all`). This wil speed up the test procedure. You can also run all tests in serial by setting `PARALLEL_JOBS=1` this way.
+    If your machine is capable, you can increase the amount of tests that are run simultaneously by prepending the `make clean all` command with `BATS_PARALLEL_JOBS=X` (i.e. `BATS_PARALLEL_JOBS=X make clean all`). This wil speed up the test procedure. You can also run all tests in serial by setting `BATS_PARALLEL_JOBS=1` this way.
 
-    The default value of `PARALLEL_JOBS` is 2. Increasing it to `3` requires 6 threads and 6GB of main memory; increasing it to `4` requires 8 threads and at least 8GB of main memory.
+    The default value of `BATS_PARALLEL_JOBS` is 2. Increasing it to `3` requires 6 threads and 6GB of main memory; increasing it to `4` requires 8 threads and at least 8GB of main memory.
 
 !!! warning "Test Output when Running in Parallel"
 
