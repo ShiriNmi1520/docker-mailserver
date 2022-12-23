@@ -3,6 +3,8 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 
 TEST_NAME_PREFIX='Spam junk folder:'
 
+function teardown() { _default_teardown ; }
+
 # Test case
 # ---------
 # When SPAMASSASSIN_SPAM_TO_INBOX=1, spam messages must be delivered
@@ -21,8 +23,6 @@ TEST_NAME_PREFIX='Spam junk folder:'
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
-
-  function teardown() { _default_teardown ; }
 
   # send a spam message
   _run_in_container /bin/bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
@@ -50,8 +50,6 @@ TEST_NAME_PREFIX='Spam junk folder:'
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
-
-  function teardown() { _default_teardown ; }
 
   # send a spam message
   _run_in_container /bin/bash -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-spam.txt"
