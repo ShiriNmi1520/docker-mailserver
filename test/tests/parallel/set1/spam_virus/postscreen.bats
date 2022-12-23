@@ -11,7 +11,10 @@ function setup() {
 
 function setup_file() {
   local CONTAINER_NAME=${CONTAINER1_NAME}
-  local CUSTOM_SETUP_ARGUMENTS=(--env POSTSCREEN_ACTION=enforce --cap-add=NET_ADMIN)
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env POSTSCREEN_ACTION=enforce
+    --cap-add=NET_ADMIN
+  )
   init_with_defaults
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"

@@ -22,6 +22,7 @@ function setup_file() {
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 
+  # Create a container which will send wrong authentications and should get banned
   local CONTAINER_NAME=${CONTAINER2_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(--env MAIL_FAIL2BAN_IP="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' ${CONTAINER1_NAME})")
   init_with_defaults

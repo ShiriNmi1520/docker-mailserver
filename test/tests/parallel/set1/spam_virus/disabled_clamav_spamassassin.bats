@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-TEST_NAME_PREFIX='Clam + SA disabled:'
+TEST_NAME_PREFIX='ClamAV + SA disabled:'
 CONTAINER_NAME='dms-test-disabled_clamav_spamassasin'
 
 function setup_file() {
@@ -24,27 +24,27 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
-@test "${TEST_NAME_PREFIX} ClamAV disabled by ENABLED_CLAMAV=0" {
+@test "${TEST_NAME_PREFIX} ClamAV - should be disabled by ENV 'ENABLED_CLAMAV=0'" {
   _run_in_container /bin/bash -c "ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_failure
 }
 
-@test "${TEST_NAME_PREFIX} SA should not be listed in Amavis when disabled" {
+@test "${TEST_NAME_PREFIX} SA - Amavis integration should not be active" {
   _run_in_container /bin/sh -c "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
   assert_success
 }
 
-@test "${TEST_NAME_PREFIX} ClamAV should not be listed in Amavis when disabled" {
+@test "${TEST_NAME_PREFIX} ClamAV - Amavis integration should not be active" {
   _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
   assert_failure
 }
 
-@test "${TEST_NAME_PREFIX} SA should not be called when disabled" {
+@test "${TEST_NAME_PREFIX} SA should not be called" {
   _run_in_container grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
   assert_failure
 }
 
-@test "${TEST_NAME_PREFIX} restart of process ClamAV when disabled" {
+@test "${TEST_NAME_PREFIX} ClamAV process should not be restarted when killed" {
   _run_in_container /bin/bash -c "pkill -f clamd && sleep 10 && ps aux --forest | grep -v grep | grep '/usr/sbin/clamd'"
   assert_failure
 }

@@ -18,6 +18,7 @@ function setup_file() {
   )
 
   common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  # using postfix availability as start indicator, this might be insufficient for postgrey
   wait_for_smtp_port_in_container "${CONTAINER_NAME}"
 }
 
