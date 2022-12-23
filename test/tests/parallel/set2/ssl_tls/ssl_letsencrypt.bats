@@ -8,13 +8,6 @@ CONTAINER2_NAME='dms-test-ssl_letsencrypt-2'
 CONTAINER3_NAME='dms-test-ssl_letsencrypt-3'
 export TEST_FQDN='mail.example.test'
 
-# Requires maintenance (TODO): Yes
-# Can run tests in parallel?: Yes
-
-# Also shares a common TEST_TMP_CONFIG local folder,
-# Instead of individual PRIVATE_CONFIG copies.
-# For this test that is a non-issue, unless run in parallel.
-
 # Similar to BATS `setup()` method, but invoked manually after
 # CONTAINER_NAME has been adjusted for the running testcase.
 function initial_setup() {
@@ -82,20 +75,21 @@ function teardown() {
 #
 # NOTE: Currently all of the `acme.json` configs have the FQDN match a SAN value,
 # all Subject CN (`main` in acme.json) are `Smallstep Leaf` which is not an FQDN.
-# While valid for that field, it does mean there is no test coverage against `main`.
+# While not using a FQDN is valid for that field,
+# it does mean there is no test coverage against the `acme.json` field `main`.
 @test "${TEST_NAME_PREFIX} Traefik 'acme.json' (*.example.test)" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
   initial_setup
 
-  # This test group changes to certs signed with an RSA Root CA key,
-  # These certs all support both FQDNs: `mail.example.test` and `example.test`,
-  # Except for the wildcard cert `*.example.test`, which intentionally excluded `example.test` when created.
-  # We want to maintain the same FQDN (mail.example.test) between the _acme_ecdsa and _acme_rsa tests.
-  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
-
-  # Change default Root CA cert used for verifying chain of trust with openssl:
+  # Override the `initial_setup()` default Root CA cert (used for verifying the chain of trust via `openssl`):
   # shellcheck disable=SC2034
   local TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/rsa/ca-cert.rsa.pem"
+
+  # This test group switches to certs that are signed with an RSA Root CA key instead.
+  # All of these certs support both FQDNs (`mail.example.test` and `example.test`),
+  # Except for the wildcard cert (`*.example.test`), that was created with `example.test` intentionally excluded from SAN.
+  # We want to maintain the same FQDN (`mail.example.test`) between the _acme_ecdsa and _acme_rsa tests.
+  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
 
   function _prepare() {
     # Default `acme.json` for _acme_ecdsa test:
