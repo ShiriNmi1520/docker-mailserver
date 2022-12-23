@@ -15,11 +15,13 @@ export TEST_FQDN='mail.example.test'
 # Instead of individual PRIVATE_CONFIG copies.
 # For this test that is a non-issue, unless run in parallel.
 
-function run_setup_for_individual_test() {
+# Similar to BATS `setup()` method, but invoked manually after
+# CONTAINER_NAME has been adjusted for the running testcase.
+function initial_setup() {
   init_with_defaults
 
   # Prepare certificates in the letsencrypt supported file structure:
-  # Note Certbot uses `privkey.pem`.
+  # NOTE: Certbot uses `privkey.pem`.
   # `fullchain.pem` is currently what's detected, but we're actually providing the equivalent of `cert.pem` here.
   # TODO: Verify format/structure is supported for nginx-proxy + acme-companion (uses `acme.sh` to provision).
 
@@ -39,10 +41,9 @@ function teardown() {
 # Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
 @test "${TEST_NAME_PREFIX} Should default to HOSTNAME (${TEST_FQDN})" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
+  initial_setup
+
   local TARGET_DOMAIN=${TEST_FQDN}
-
-  run_setup_for_individual_test
-
   local CUSTOM_SETUP_ARGUMENTS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
     --env PERMIT_DOCKER='container'
@@ -60,10 +61,9 @@ function teardown() {
 # as fallback when no cert for FQDN `mail.example.test` (HOSTNAME) exists:
 @test "${TEST_NAME_PREFIX} Should fallback to DOMAINNAME (example.test)" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
+  initial_setup
+
   local TARGET_DOMAIN='example.test'
-
-  run_setup_for_individual_test
-
   local CUSTOM_SETUP_ARGUMENTS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
     --env PERMIT_DOCKER='container'
@@ -85,6 +85,7 @@ function teardown() {
 # While valid for that field, it does mean there is no test coverage against `main`.
 @test "${TEST_NAME_PREFIX} Traefik 'acme.json' (*.example.test)" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
+  initial_setup
 
   # This test group changes to certs signed with an RSA Root CA key,
   # These certs all support both FQDNs: `mail.example.test` and `example.test`,
@@ -97,9 +98,6 @@ function teardown() {
   local TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/rsa/ca-cert.rsa.pem"
 
   function _prepare() {
-    run_setup_for_individual_test
-    # rm -r "${TEST_TMP_CONFIG}"/letsencrypt/*
-
     # Default `acme.json` for _acme_ecdsa test:
     cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
 
